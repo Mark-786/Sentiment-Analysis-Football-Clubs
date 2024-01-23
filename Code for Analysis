@@ -1,0 +1,101 @@
+#Attaching a sample code for analysis done for Chelsea Phase 1 match 1
+ Code for analysis
+library(stringi)
+library(tm)
+library(stringr)
+nottingham <- read.csv(file.choose(), header = T)
+corpus <- iconv(Chelsea$tweet_text, to = "UTF-8")
+corpus <- Corpus(VectorSource(corpus))
+inspect(corpus[1:10])
+clean_corpus <- function(text) {
+# Convert to lowercase
+ text <- tolower(text)
+# Remove punctuation
+ text <- removePunctuation(text)
+# Remove common English words
+ text <- removeWords(text, stopwords("english"))
+# Remove the word 's'
+ text <- removeWords(text, c("cfc","chelseafc", "mcfc", "afc", "lfc",
+"fulhamfc","mufc","will","rakesurr","follow", "bb14", "flu", "thfc",
+"followers","followforfollow","followher","followback","followme","tweet","follower",
+"follow4follow"))
+# Remove single characters (e.g., standalone "a", "b", ... "z")
+ text <- stringi::stri_replace_all_regex(text, "\\b[a-z]{1}\\b","")
+# Remove specific characters like single & double quotes and the symbol
+ text <- stringi::stri_replace_all_fixed(text, "’", "")
+ text <- stringi::stri_replace_all_regex(text, "[\"']", "")
+# Remove any kind of symbols
+ text <- stringi::stri_replace_all_regex(text, "\\p{So}+", "")
+#Remove extra whitespace
+ text <- stripWhitespace(text)
+ return(text)
+}
+corpus <- tm_map(corpus, content_transformer(clean_corpus))
+remove_emojis <- function(text) {
+ emoji_pattern <- "[\\x{1F600}-\\x{1F64F}\\x{1F300}-\\x{1F5FF}\\x{1F680}-
+\\x{1F6FF}\\x{1F700}-\\x{1F77F}\\x{1F780}-\\x{1F7FF}\\x{1F800}-\\x{1F8FF}\\x{1F900}-
+\\x{1F9FF}\\x{1FA00}-\\x{1FA6F}\\x{1FA70}-\\x{1FAFF}\\x{2600}-\\x{26FF}\\x{2700}-
+\\x{27BF}]"
+ cleaned_text <- str_replace_all(text, emoji_pattern, "")
+ return(cleaned_text)
+}
+corpus <- tm_map(corpus, content_transformer(remove_emojis))
+dtm <- DocumentTermMatrix(corpus)
+m <- as.matrix(dtm)
+word_freq <- colSums(m)
+sorted_words <- sort(word_freq, decreasing = TRUE)
+frequency_threshold <- 600
+filtered_words <- sorted_words[sorted_words > frequency_threshold]
+top_n_words <- length(filtered_words)
+bar_colors <- rainbow(length(filtered_words))
+# Adjust margins: bottom, left, top, right
+par(mar = c(5, 6, 4, 2)) # Default is par(mar = c(5, 4, 4, 2)
+barplot(filtered_words, names.arg = names(filtered_words),
+ main = "Most popular words for Chelsea P1_1",
+ xlab = "", ylab = "Frequency",
+ col = bar_colors, las = 1, cex.names = 1,
+ border = "black", space = 1)
+# Reset the graphical parameters to default (if necessary for subsequent plots)
+##CODE TO RESET TO DEFAULT IF U WANT par(mar = c(5, 4, 4, 2) + 0.1)
+legend("topright",
+ legend = sprintf("%s (%d)", names(filtered_words), filtered_words),
+ fill = bar_colors,
+ cex = 0.8,
+ box.lty = 0, # No border for legend box
+ ncol = 1)
+print(filtered_words)
+library(wordcloud)
+# Get the top 100 words
+top_100_words <- head(sorted_words, 100)
+# Create a word cloud for the top 100 words
+wordcloud(names(top_100_words), freq = top_100_words, scale = c(3.5, 0.5), rot.per = 0.3,
+ colors = brewer.pal(8, "Dark2"))
+par(mar = c(2, 2, 2, 2)) # Set margins to provide more space
+wordcloud(words = names(sorted_words[1:100]), freq = sorted_words[1:100], scale = c(4, 0.5),
+min.freq = 10,
+ random.order = FALSE, colors = brewer.pal(8, "Dark2"))
+##SENTIMENT analysis
+library(syuzhet)
+library(ggplot2)
+library(scales)
+library(reshape2)
+library(dplyr)
+Chelsea <- read.csv(file.choose(), header = T)
+tweets <- iconv(Chelsea$tweet_text)
+s <- get_nrc_sentiment(tweets)
+head(s)
+sentiment_totals <- colSums(s)
+sentiment_percentages <- (sentiment_totals / sum(sentiment_totals)) * 100
+# ADJUST  par(mar = c(5, 4, 4, 2))
+midpoints <- barplot(sentiment_percentages,
+ las = 1,
+ col = rainbow(10),
+ ylab = 'Percentage',
+ main = 'Sentiment Scores for Chelsea Phase 1_1 (%)',
+ ylim = c(0, 100), # Limit y-axis to 100 for clarity
+ border = "black", # Adding white border for clarity
+ names.arg = names(sentiment_percentages),
+ cex.names = 0.7) # Adjusting the font size for x-axis labels
+# Add the percentage values on top of the bars
+text(midpoints, sentiment_percentages + 2, paste0(round(sentiment_percentages, 1), "%"), cex =
+0.7, pos = 3)
