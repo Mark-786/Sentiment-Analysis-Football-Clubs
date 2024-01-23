@@ -1,0 +1,30 @@
+This GitHub repository houses the code and documentation for a sentiment analysis project focused on tweets related to 6 football clubs, 
+comprising 3 from the Premier League (Chelsea, Manchester City, Newcastle United) and 3 from the Championship (Nottingham Forest, Derby, Fulham). 
+The sentiment analysis was conducted across 3 distinct phases during the football season: August and September (Phase 1), November and December (Phase 2), 
+and April and May (Phase 3).
+
+Data:
+The project utilized secondary data provided in the form of 90 CSV files, with each file representing tweets associated with one of the 6 football clubs during the
+specified phases. The data collection concentrated solely on league matches due to individual project constraints and time limitations.
+
+Data Cleaning and Processing:
+Prior to analysis, the CSV files underwent preprocessing. Blank columns were removed, and the language column was filtered to include only English tweets. 
+Subsequently, each file was loaded into R Studio for further processing. Stopwords, punctuations, common words, emojis, symbols, and extra whitespaces were removed 
+to refine the textual data.
+
+Analysis Phases:
+
+Phase 1 (August and September): Tweets collected before the matchday of the first five league matches for each team.
+Phase 2 (November and December): Analysis conducted on tweets related to five league matches during this period.
+Phase 3 (April and May): Focus on tweets during the business end of the season, covering league matches in April and May.
+
+Analysis Steps:
+
+Creation of a corpus from cleaned data.
+Establishment of a word frequency threshold to generate a barplot showcasing the most popular words and their frequencies.
+Generation of a word cloud to visually represent the top words used by individuals during each phase.
+Sentiment analysis performed on each file.
+Presentation of sentiment analysis results via barplots, illustrating the percentage distribution of different sentiments within the tweets for each phase.
+Note:
+This project was carried out individually, and the scope was limited to league matches for practicality and time considerations. 
+The repository provides detailed documentation and code for each phase, enabling reproducibility and further exploration of sentiment trends in football-related tweets.
